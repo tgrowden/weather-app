@@ -1,0 +1,13 @@
+{
+  "name": "weather-app",
+  "version": "0.0.1",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "components"
+  ],
+  "dependencies": {
+    "angular": "^1.5.7",
+    "bootstrap": "^3.3.6"
+  }
+}
