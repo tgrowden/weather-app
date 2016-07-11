@@ -1,10 +1,42 @@
 extends layout
 
 block content
-  .container(ng-ctrl='mainCtrl')
+  .container(ng-controller='mainCtrl')
     .row
-        .col-md-6.col-md-offset-3
-            input#address.form-control(type='text', name='address', placeholder='Address')
+        .col-md-10.col-md-offset-1
+            input#address.form-control(ng-model='address', type='text', name='address', placeholder='Address')
     .row
-        .col-md-6.col-md-offset-3.text-right
+        .col-md-10.col-md-offset-1.text-right
             button.btn.btn-primary(ng-click='getCoords()') Submit
+    #weatherContainer.row(ng-if='selectedLocation')
+        .card
+            .card-header.p-b-2
+                .pull-xs-right
+                    .btn-group
+                        .btn.btn-xs.btn-secondary(ng-click="setWeather('minutely')") Minutely
+                        .btn.btn-xs.btn-secondary(ng-click="setWeather('hourly')") Hourly
+                        .btn.btn-xs.btn-secondary(ng-click="setWeather('daily')") Daily
+                br.clear-fix
+            .card-body
+                textarea.form-control(ng-model='weatherData')
+    .row(ng-if='location.length >= 1')
+        table.table.table-striped
+            thead
+                tr
+                    th Address
+                    th Latitude
+                    th Longitude
+                    th Selection
+            tbody
+                tr(ng-repeat='(key, loc) in location')
+                    td
+                        input.form-control(readonly, data-key="{{ key }}", value="{{ loc.formattedAddress }}")
+                    td
+                        input.form-control(readonly, data-key="{{ key }}", value="{{ loc.latitude }}")
+                    td
+                        input.form-control(readonly, data-key="{{ key }}", value="{{ loc.longitude }}")
+                    td
+                        label
+                            input.pull-right.p-r-1(type='radio', name='selectedLocation', value="{{ key }}", ng-click="getWeather()")
+                            | &nbsp; Select
+
