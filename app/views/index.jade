@@ -7,7 +7,11 @@ block content
             input#address.form-control(ng-model='address', type='text', name='address', placeholder='Address')
     .row
         .col-md-10.col-md-offset-1.text-right
-            button.btn.btn-primary(ng-click='getCoords()') Submit
+            .col-sm-6
+                button.btn.btn-primary(ng-click='getCoords()') Submit
+            .col-sm-6.m-t-1(ng-if='location.length >= 1')
+                select#locationSelect.form-control(ng-model='selectedIndex', ng-change='getWeather(selectedIndex)')
+                        option(ng-repeat='(key, loc) in location', ng-value='{{key}}') {{ loc.formattedAddress }}
     #weatherContainer.row(ng-if='selectedLocation')
         .card
             .card-header.p-b-2
@@ -19,24 +23,3 @@ block content
                 br.clear-fix
             .card-body
                 textarea.form-control(ng-model='weatherData')
-    .row(ng-if='location.length >= 1')
-        table.table.table-striped
-            thead
-                tr
-                    th Address
-                    th Latitude
-                    th Longitude
-                    th Selection
-            tbody
-                tr(ng-repeat='(key, loc) in location')
-                    td
-                        input.form-control(readonly, data-key="{{ key }}", value="{{ loc.formattedAddress }}")
-                    td
-                        input.form-control(readonly, data-key="{{ key }}", value="{{ loc.latitude }}")
-                    td
-                        input.form-control(readonly, data-key="{{ key }}", value="{{ loc.longitude }}")
-                    td
-                        label
-                            input.pull-right.p-r-1(type='radio', name='selectedLocation', value="{{ key }}", ng-click="getWeather()")
-                            | &nbsp; Select
-

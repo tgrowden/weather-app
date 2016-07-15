@@ -23,11 +23,12 @@ app.controller('mainCtrl', function($scope, $http) {
                 $scope.location = false;
             }
         });
-        
     };
 
-    $scope.getWeather = function() {
-        var location = $scope.location[this.key];
+    $scope.getWeather = function(key) {
+        
+        var location = $scope.location[key];
+        console.log(JSON.stringify(location, null, 2));
         var req = {
             method: 'POST',
             url: '/api/weather?lat=' + location.latitude + '&long=' + location.longitude
@@ -56,5 +57,8 @@ app.controller('mainCtrl', function($scope, $http) {
 
     $scope.setWeather = function(key) {
         console.log(key);
+    };
+    $scope.foo = function() {
+        //console.log(this.value);
     };
 });
