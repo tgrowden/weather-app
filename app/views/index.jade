@@ -2,24 +2,125 @@ extends layout
 
 block content
   .container(ng-controller='mainCtrl')
+    //- Address input
     .row
         .col-md-10.col-md-offset-1
             input#address.form-control(ng-model='address', type='text', name='address', placeholder='Address')
+    //- Button
     .row
         .col-md-10.col-md-offset-1.text-right
             .col-sm-6
                 button.btn.btn-primary(ng-click='getCoords()') Submit
-            .col-sm-6.m-t-1(ng-if='location.length >= 1')
+            .col-sm-6.m-t-1(ng-if='locations.length >= 1')
                 select#locationSelect.form-control(ng-model='selectedIndex', ng-change='getWeather(selectedIndex)')
-                        option(ng-repeat='(key, loc) in location', ng-value='{{key}}') {{ loc.formattedAddress }}
-    #weatherContainer.row(ng-if='selectedLocation')
-        .card
-            .card-header.p-b-2
-                .pull-xs-right
-                    .btn-group
-                        .btn.btn-xs.btn-secondary(ng-click="setWeather('minutely')") Minutely
-                        .btn.btn-xs.btn-secondary(ng-click="setWeather('hourly')") Hourly
-                        .btn.btn-xs.btn-secondary(ng-click="setWeather('daily')") Daily
-                br.clear-fix
-            .card-body
-                textarea.form-control(ng-model='weatherData')
+                        option(ng-repeat='(key, loc) in locations', ng-value='{{key}}') {{ loc.formattedAddress }}
+
+    #weatherContainer.row(ng-if='weatherData')
+        //- button row options
+        h1.p-b-2
+            .pull-xs-left(ng-if='weatherData.selected')
+                canvas(width="44", height="44", skycons="{{weatherData.selected.icon}}")
+                | {{ weatherData.selected.summary }}
+            .pull-xs-right
+                .btn-group
+                    .btn.btn-xs.btn-secondary(ng-class="{'active':weatherData.selected.title === 'minutely'}", ng-click="setWeather('minutely')") Minutely
+                    .btn.btn-xs.btn-secondary(ng-class="{'active':weatherData.selected.title === 'hourly'}", ng-click="setWeather('hourly')") Hourly
+                    .btn.btn-xs.btn-secondary(ng-class="{'active':weatherData.selected.title === 'daily'}", ng-click="setWeather('daily')") Daily
+            br.clear
+
+        //- @TODO: remove textarea
+        .col-xs-12.p-b-3
+            textarea#textarea.form-control
+
+        //- Minutely weather data
+        .col-xs-12.col-md-6.col-lg-4.col-xl-3(ng-if="weatherData.selected.title == 'minutely'", ng-repeat='(key, data) in weatherData.selected.data')
+            .card
+                .card-header
+                    .pull-xs-left
+                        canvas(width="24", height="24", skycons="{{weatherData.selected.icon}}")
+                    .pull-xs-right
+                        | {{ data.timeString }}
+                    br(style="clear: both")
+                .card-body
+                    label Precipitation Intensity: 
+                        span {{ data.precipIntensity}}
+                    label Precipitation Probability: 
+                        span {{ data.precipProbability }}
+
+        //- Hourly weather data
+        .col-xs-12.col-md-6.col-lg-4.col-xl-3(ng-if="weatherData.selected.title == 'hourly'", ng-repeat='(key, data) in weatherData.selected.data')
+            .card
+                .card-header
+                    .pull-xs-left
+                        canvas(width="24", height="24", skycons="{{ data.icon }}")
+                    .pull-xs-right
+                        | {{ data.dateString }}
+                    br.clear
+                .card-body
+                    label Summary: 
+                        span {{ data.summary }}
+                    label Temperature: 
+                        span {{ data.temperature }}&#8457;
+                    label  Apparent Temp: 
+                        span {{ data.apparentTemperature }}&#8457;
+                    label Precipitation Intensity: 
+                        span {{ data.precipIntensity}}
+                    label Precipitation Probability: 
+                        span {{ data.precipProbability }}
+                    label  Dew Point: 
+                        span {{ data.dewPoint }}&#8457;
+                    label  Humidity: 
+                        span {{ data.humidity }}
+                    label  Wind Speed: 
+                        span {{ data.windSpeed }} mph
+                    label  Wind Bearing: 
+                        span {{ data.windBearing }}
+                    label  Visibility: 
+                        span {{ data.visibility }}
+                    label  Cloud Cover: 
+                        span {{ data.cloudCover }}
+                    label  Pressure: 
+                        span {{ data.pressure }}
+                    label  Ozone: 
+                        span {{ data.ozone }}
+
+        //- Daily weather data
+        .col-xs-12.col-md-6.col-lg-4.col-xl-3(ng-if="weatherData.selected.title == 'daily'", ng-repeat='(key, data) in weatherData.selected.data')
+            .card
+                .card-header
+                    .pull-xs-left
+                        canvas(width="24", height="24", skycons="{{ data.icon }}")
+                    .pull-xs-right
+                        | {{ data.dayString }}
+                    br.clear
+                .card-body
+                    label Summary: 
+                        span {{ data.summary }}
+                    label Sunrise: 
+                        span {{ data.sunriseTimeString }}
+                    label Sunset: 
+                        span {{ data.sunsetTimeString }}
+                    label Moon Phase:
+                        span {{ data.moonPhase }}
+                    label Precipitation: 
+                        span {{ data.precipProbability }} chance of {{ data.precipType }}
+                    label Low: 
+                        span {{ data.temperatureMin }}&#8457; at {{ data.temperatureMinTimeString }}
+                    label High: 
+                        span {{ data.temperatureMax }}&#8457; at {{ data.temperatureMaxTimeString }}
+                    label  Dew Point: 
+                        span {{ data.dewPoint }}&#8457;
+                    label  Humidity: 
+                        span {{ data.humidity }}
+                    label  Wind Speed: 
+                        span {{ data.windSpeed }} mph
+                    label  Wind Bearing: 
+                        span {{ data.windBearing }}
+                    label  Visibility: 
+                        span {{ data.visibility }}
+                    label  Cloud Cover: 
+                        span {{ data.cloudCover }}
+
+                    label  Ozone: 
+                        span {{ data.ozone }}
+

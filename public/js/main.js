@@ -1,8 +1,8 @@
 var app = angular.module('weatherApp', []);
 app.controller('mainCtrl', function($scope, $http) {
+    var skycons = new Skycons({"color": "black"});
     $scope.address = '289 E main st Frostburg MD';
-    $scope.location = {};
-    $scope.selectedLocation = false;
+    $scope.coordinates = false;
     
     $scope.getCoords = function() {
         var req = {
@@ -18,20 +18,19 @@ app.controller('mainCtrl', function($scope, $http) {
             return err;
         }).then(function(data) {
             if (data.err === false) {
-                $scope.location = data.data;
+                $scope.locations = data.data;
             } else {
-                $scope.location = false;
+                $scope.locations = false;
             }
         });
     };
 
     $scope.getWeather = function(key) {
         
-        var location = $scope.location[key];
-        console.log(JSON.stringify(location, null, 2));
+        var selectedLocation = $scope.locations[key];
         var req = {
             method: 'POST',
-            url: '/api/weather?lat=' + location.latitude + '&long=' + location.longitude
+            url: '/api/weather?lat=' + selectedLocation.latitude + '&long=' + selectedLocation.longitude
         };
         $http(req).then(function(success) {
             success.err = false;
@@ -41,24 +40,51 @@ app.controller('mainCtrl', function($scope, $http) {
             return err;
         }).then(function(data) {
             if (data.err === false) {
-                data = data.data;
-                console.log(JSON.stringify(data, null, 2));
-                _(['minutely', 'hourly', 'daily']).forEach(function(item) {
-                    _(data[item].data).forEach(function(i) {
-                        i.formattedTime = moment(i.time * 1000).format('MM/DD/YY HH:mm');
+                var weatherData = data.data;
+                _(['minutely', 'hourly', 'daily']).forEach(function(index) {
+                    weatherData[index].title = index;
+                    _(weatherData[index].data).forEach(function(i) {
+                        i.timeString = moment(i.time * 1000).format('LT');
+                        i.dateString = moment(i.time * 1000).calendar();
+                        i.dayString = moment(i.time * 1000).format('dddd');
+                        i.cloudCover = (i.cloudCover * 100).toFixed(0) + '%';
+                        i.humidity = (i.humidity * 100).toFixed(0) + '%';
+                        i.precipProbability = (i.precipProbability * 100).toFixed(0) + '%';
+                        if (index == 'daily') {
+                            i.sunriseTimeString = moment(i.sunriseTime * 1000).format('LT');
+                            i.sunsetTimeString = moment(i.sunsetTime * 1000).format('LT');
+                            i.precipIntensityMaxTimeString = moment(i.precipIntensityMaxTimeString * 1000).format('LT');
+                            i.temperatureMinTimeString = moment(i.temperatureMinTime * 1000).format('LT');
+                            i.temperatureMaxTimeString = moment(i.temperatureMaxTime * 1000).format('LT');
+                            i.apparentTemperatureMinTimeString = moment(i.apparentTemperatureMinTime * 1000).format('LT');
+                            i.apparentTemperatureMaxTimeString = moment(i.apparentTemperatureMaxTime * 1000).format('LT');
+                            i.moonPhase = (i.moonPhase * 100).toFixed(0) + '%';
+                        }
                     });
                 });
-                console.log(JSON.stringify(data));
-                $scope.weatherData = JSON.stringify(data, null, 2);
+                $scope.weatherData = weatherData;
+                $scope.setWeather('hourly');
             }
         });
-        $scope.selectedLocation = true;
     };
 
     $scope.setWeather = function(key) {
-        console.log(key);
+        $scope.weatherData.selected = $scope.weatherData[key];
+        document.getElementById('textarea').value = JSON.stringify($scope.weatherData.selected, null, 2);
     };
-    $scope.foo = function() {
-        //console.log(this.value);
+
+    $scope.skycons = function(element, attrs) {
+        var el = element[0];
+        var icon = attrs.skycons;
+        console.log(attrs);
+        skycons.add(el, icon);
+        skycons.play();
+        console.log(JSON.stringify(attrs, null, 2));
+    };
+});
+
+app.directive('skycons', function () {
+    return function (scope, element, attrs) {
+        scope.skycons(element, attrs);
     };
 });
